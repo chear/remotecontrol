@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 //打包的输出路径
-ext.appReleaseDir = "D:\\package\\"
+ext.appReleaseDir = "E:\\androidapk\\remotecontrol\\outapk\\"
 
 // 加载版本信息配置文件方法
 def loadProperties() {
-    def proFile = file("../local.properties")
+    def proFile = file("./local.properties")
     Properties pro = new Properties()
     proFile.withInputStream { stream ->
         pro.load(stream)
@@ -17,6 +17,20 @@ loadProperties()
 
 dependencies {
     compile fileTree(include: '*.jar', dir: 'libs')
+   // classpath 'com.android.tools.build:gradle:2.2.1'
+}
+
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.1'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
 }
 
 android {

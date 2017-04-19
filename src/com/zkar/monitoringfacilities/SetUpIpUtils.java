@@ -9,6 +9,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.http.conn.util.InetAddressUtils;
@@ -17,6 +18,7 @@ import android.content.Context;
 import android.net.ethernet.EthernetDevInfo;
 import android.net.ethernet.EthernetManager;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.util.Log;
 
 public class SetUpIpUtils {
@@ -250,6 +252,8 @@ public class SetUpIpUtils {
 		return ip;
 	}
 
+	EthernetManager mEthManage;
+	EthernetDevInfo mDevInfo;
 	/**
 	 * 修改ip,dns,网关等设置
 	 * */
@@ -262,29 +266,71 @@ public class SetUpIpUtils {
 			e.printStackTrace();
 		}
 
-		EthernetDevInfo oldInfo = EthernetManager.getInstance().getSavedConfig();
+//		EthernetDevInfo oldInfo = EthernetManager.getInstance().getSavedConfig();
+//
+//		Log.e("TAG", "--------old:{"+oldInfo.getIpAddress()+"}---------");
+//
+//		oldInfo.setConnectMode(EthernetDevInfo.ETHERNET_CONN_MODE_MANUAL);
+//		oldInfo.setIpAddress(ip);
+//		oldInfo.setNetMask(mask);
+//		oldInfo.setDnsAddr(dns);
+//		oldInfo.setGateWay(gateway);
+//		try{
+//			EthernetManager.getInstance().updateDevInfo(oldInfo);
+//			Thread.sleep(500);
+//		}catch(Exception e){
+//			e.printStackTrace();
+//		}
+//
+//		Log.e("TAG", "--------set ip---------");
+//
+//		enableEth();
+//
+//		EthernetDevInfo newInfo = EthernetManager.getInstance().getSavedConfig();
+//
+//		Log.e("TAG", "--------new:{"+newInfo.getIpAddress()+"}---------");
 
-		Log.e("TAG", "--------old:{"+oldInfo.getIpAddress()+"}---------");
 
-		oldInfo.setConnectMode(EthernetDevInfo.ETHERNET_CONN_MODE_MANUAL);
-		oldInfo.setIpAddress(ip);
-		oldInfo.setNetMask(mask);
-		oldInfo.setDnsAddr(dns);
-		oldInfo.setGateWay(gateway);
-		try{
-			EthernetManager.getInstance().updateDevInfo(oldInfo);
-			Thread.sleep(500);
-		}catch(Exception e){
-			e.printStackTrace();
+		mEthManage = EthernetManager.getInstance();
+		mDevInfo = new EthernetDevInfo();
+		List<EthernetDevInfo> list = mEthManage.getDeviceNameList();
+		for(EthernetDevInfo deviceInfo : list) {
+			if(deviceInfo.getIfName().equals("eth0")) {
+				mDevInfo = deviceInfo;
+				break;
+			}
 		}
+		mDevInfo.setConnectMode(EthernetDevInfo.ETHERNET_CONN_MODE_MANUAL);
+		//mDevInfo.setIfName("eth0");
+		mDevInfo.setIpAddress(ip);
+		mDevInfo.setNetMask(mask);
+		mDevInfo.setDnsAddr(dns);
+		//devInfo.setGateWay(mGw.getText().toString());
 
-		Log.e("TAG", "--------set ip---------");
 
-		enableEth();
+		new AsyncTask<Void, Void, Void>(){
+			protected void onPreExecute(){
+			}
 
-		EthernetDevInfo newInfo = EthernetManager.getInstance().getSavedConfig();
+			@Override
+			protected Void doInBackground(Void... unused){
+				try{
+					mEthManage.updateDevInfo(mDevInfo);
+					Thread.sleep(500);
+				}catch(Exception e){
+				}
+				return null;
+			}
 
-		Log.e("TAG", "--------new:{"+newInfo.getIpAddress()+"}---------");
+			protected void onProgressUpdate(Void... unused){
+			}
+
+			protected void onPostExecute(Void unused) {
+//                    EthPreference uppref = (EthPreference) mEthDevices.findPreference(devIfo.getIfName());
+//                    if(uppref != null)
+//                        uppref.update(devIfo);
+			}
+		}.execute();
 	}
 
 	/**

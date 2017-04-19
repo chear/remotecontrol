@@ -2,5 +2,9 @@
     {
         "merged": "E:\\androidapk\\remotecontrol\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi\\ic_launcher.png",
         "source": "E:\\androidapk\\remotecontrol\\res\\drawable-xhdpi\\ic_launcher.png"
+    },
+    {
+        "merged": "E:\\GitProject\\com.zkar.pis.remotecontrol\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi\\ic_launcher.png",
+        "source": "E:\\GitProject\\com.zkar.pis.remotecontrol\\res\\drawable-xhdpi\\ic_launcher.png"
     }
 ]

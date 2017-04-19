@@ -305,8 +305,7 @@ public class SetUpIpUtils {
 		mDevInfo.setIpAddress(ip);
 		mDevInfo.setNetMask(mask);
 		mDevInfo.setDnsAddr(dns);
-		//devInfo.setGateWay(mGw.getText().toString());
-
+		mDevInfo.setGateWay(gateway);
 
 		new AsyncTask<Void, Void, Void>(){
 			protected void onPreExecute(){

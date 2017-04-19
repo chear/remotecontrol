@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/remotecontrol.iml" filepath="$PROJECT_DIR$/remotecontrol.iml" />
+      <module fileurl="file://$PROJECT_DIR$/com.zkar.pis.remotecontrol.iml" filepath="$PROJECT_DIR$/com.zkar.pis.remotecontrol.iml" />
     </modules>
   </component>
 </project>

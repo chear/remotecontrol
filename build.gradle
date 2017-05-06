@@ -83,6 +83,7 @@ android {
         }
     }
 
+
     //编译完开始输入apk
     applicationVariants.all { variant ->
         variant.outputs.each { output ->

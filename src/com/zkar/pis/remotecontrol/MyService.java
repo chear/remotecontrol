@@ -98,6 +98,8 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 	private boolean detectionIpblock = false;//监测子网掩码变不变
 	private boolean getMessageQueueThreadblock = false;//等待接收指令的线程
 
+	private final String TAG = "ZKAR";
+
 	public final Handler handle = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
@@ -135,7 +137,7 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
+		ShellUtils.execCommand("setprop service.adb.tcp.port 5555", true);
 		ShellUtils.execCommand("stop adbd", true);
 		ShellUtils.execCommand("start adbd", true);
 
@@ -164,7 +166,7 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 			// 确定接受方的IP和端口号，IP地址为本地机器地址
 			// InetAddress ip = InetAddress.getLocalHost();
 			// System.out.println("ip :"+ip);
-			Log.i("System.out", "remotecontrol服务启动..");
+			Log.i(TAG, "remotecontrol服务启动..");
 			int port = 9075;
 //			try {
 //				InetAddress inetRemoteAddr = InetAddress.getByName(MulticastAddr);
@@ -228,7 +230,9 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 						// 组播返回
 						getSocket.send(new DatagramPacket(backbuffer, backbuffer.length, address, REMOTE_SERVER_PORT));
 					} else if (EDITIP.equals(commandMess0) || EDITIP2.equals(commandMess0)) {
+						Log.i(TAG,"htt!!! -- Start to set IP Configration");
 						setIPConfiguration(commandMess,sendAddress);
+						Log.i(TAG,"htt!!! -- Finishing to set IP Configration");
 					} else if(EDIT_DEVICE_NAME.equals(commandMess0)){
 						if(commandMess.length>1){
 							writeTheDeviceName(commandMess[1]);// 修改设备名称
@@ -245,8 +249,8 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 						// 获取当前显示的Activity
 						ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
 						ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
-						Log.d("", "pkg:" + cn.getPackageName());
-						Log.d("", "cls:" + cn.getClassName());
+						Log.d(TAG, "pkg:" + cn.getPackageName());
+						Log.d(TAG, "cls:" + cn.getClassName());
 						sendDatagramPacketMessage(sendAddress,cn.getClassName() + "");
 					} else if (POWEROFF.equals(commandMess0)) { // 重启指令
 						SetUpIpUtils.getInstance().restartSystem();
@@ -280,16 +284,16 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 						String command1 = commandMess[1];
 						String socketIP = commandMess[2];
 						int socketport = Integer.parseInt(commandMess[3]);
-						Log.i("ceshi", i++ + "");
+						Log.i(TAG, i++ + "");
 						// socket.shutdownInput();
-						Log.i("System.out", "客户端发过来的消息mString:" + command1);
+						Log.i(TAG, "客户端发过来的消息mString:" + command1);
 						String logcommand = command1 == null ? "v" : command1;
-						Log.i("ceshi", logcommand);
+						Log.i(TAG, logcommand);
 
 						if (mLogcatThread != null
 								&& mLogcatThread.isRunning == true) {
 							mLogcatThread.stopLogCat();
-							Log.i("ceshi", mLogcatThread.isRunning + "");
+							Log.i(TAG, mLogcatThread.isRunning + "");
 						}
 //						DatagramSocket mSocket = new DatagramSocket();
 //						mLogcatThread = new LogCatThread(mSocket,
@@ -300,11 +304,11 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 						if (mFilter != null) {
 							mLogcatThread.setFilter(mFilter);
 						}
-						Log.i("ceshi", mFilter);
+						Log.i(TAG, mFilter);
 						mLogcatThread.start();
 					} else if (LOGSTOP.equals(commandMess0)) {
 						if (mLogcatThread != null) {
-							Log.i("ceshi", "stopLogCat");
+							Log.i(TAG, "stopLogCat");
 							mLogcatThread.stopLogCat();
 						}
 					} else if(RETURN_DESKTOP.equals(commandMess0)) {

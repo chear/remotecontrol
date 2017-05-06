@@ -70,11 +70,11 @@ public class RCBootBroadcastReceiver extends BroadcastReceiver {
 		if (dynamicip) {// 设置ip获取方式为动态获取
 			SetUpIpUtils.getInstance().setDynamicAcquisitionIP();
 		} else {
-			String ip = ipParameters.getString("ip", null);
-			// String dns = ipParameters.getString("dns", null);
-			String gateway = ipParameters.getString("gateway", null);
-			String mask = ipParameters.getString("mask", "255.255.255.0");
-			SetUpIpUtils.getInstance().editEthernet(context, ip, null, gateway, mask);
+//			String ip = ipParameters.getString("ip", null);
+//			// String dns = ipParameters.getString("dns", null);
+//			String gateway = ipParameters.getString("gateway", null);
+//			String mask = ipParameters.getString("mask", "255.255.255.0");
+//			SetUpIpUtils.getInstance().editEthernet(context, ip, null, gateway, mask);
 		}
 		try {
 			Thread.sleep(500);

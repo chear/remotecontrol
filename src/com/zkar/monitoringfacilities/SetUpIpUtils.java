@@ -7,28 +7,45 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Arrays;
+//import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Set;
+//import java.util.Set;
 
 import org.apache.http.conn.util.InetAddressUtils;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.ethernet.EthernetDevInfo;
 import android.net.ethernet.EthernetManager;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.util.Log;
 
+import com.zkar.pis.remotecontrol.MyService;
+import com.zkar.pis.remotecontrol.R;
 import static com.zkar.outside.util.PackageUtils.TAG;
 
 public class SetUpIpUtils {
-    private final String TAG = "setupip";
+    private final String TAG = "RemoteControl_SetupIP";
     private static SetUpIpUtils setUpIpUtils;
     private EthernetDevInfo mDevInfo;
 
+    //TODO htt
+    private List<EthernetDevInfo> mListDevices = new ArrayList<EthernetDevInfo>();
+    private final EthernetManager mEthManage ;
+
+//    private PreferenceCategory mEthDevices;
     private SetUpIpUtils() {
+//        mEthDevices = (PreferenceCategory) findPreference(KEY_DEVICES_TITLE);
+//        mEthDevices.setOrderingAsAdded(false);
+        mEthManage = EthernetManager.getInstance();
+
     }
 
     /**
@@ -255,6 +272,100 @@ public class SetUpIpUtils {
         return ip;
     }
 
+
+//    private void upDeviceList(EthernetDevInfo DevIfo){
+//        String ifname = "";
+//        EthPreference upEthdevice = null;
+//        EthPreference tmpPreference = null;
+//
+//        if(DevIfo != null)
+//            ifname = DevIfo.getIfName();
+//
+//        if(mEthDevices != null)
+//            mEthDevices.removeAll();
+//
+//        mListDevices = mEthManage.getDeviceNameList();
+//        if(mListDevices != null){
+//            for(EthernetDevInfo deviceinfo : mListDevices){
+//                if(!deviceinfo.getIfName().equals(ifname)){
+////                    tmpPreference = new EthPreference(getActivity(), deviceinfo);
+////                    mEthDevices.addPreference(tmpPreference);
+////                    mSelected = tmpPreference;
+//                }else{
+//                    DevIfo.setHwaddr(deviceinfo.getHwaddr());
+////                    upEthdevice = new EthPreference(getActivity(), DevIfo);
+//                }
+//            }
+//            if(upEthdevice != null){
+//                mEthDevices.addPreference(upEthdevice);
+////                mSelected = upEthdevice;
+//            }
+////            if(mSelected != null)
+////                mMacPreference.setSummary(mSelected.getConfigure().getHwaddr().toUpperCase());
+//        }else{
+//            Preference tmpPre = new Preference(getActivity());
+//            tmpPre.setTitle(getActivity().getString(R.string.eth_dev_more));
+//            tmpPre.setEnabled(false);
+//            mEthDevices.addPreference(tmpPre);
+////            mMacPreference.setSummary("00:00:00:00:00:00");
+////            mIpPreference.setSummary("0.0.0.0");
+////            mSelected = null;
+//        }
+//    }
+
+    public void handleEvent(Context context, Intent intent) {
+        String action = intent.getAction();
+        if (EthernetManager.ETHERNET_STATE_CHANGED_ACTION.equals(action)) {
+            Log.i(TAG,"htt!!: handleEvent:ETHERNET_STATE_CHANGED_ACTION");
+//            final EthernetDevInfo devinfo = (EthernetDevInfo)
+//                    intent.getParcelableExtra(EthernetManager.EXTRA_ETHERNET_INFO);
+//            final int event = intent.getIntExtra(EthernetManager.EXTRA_ETHERNET_STATE,
+//
+//                    EthernetManager.EVENT_NEWDEV);
+//
+//            if(event == EthernetManager.EVENT_NEWDEV || event == EthernetManager.EVENT_DEVREM){
+//                if(mSelected != null){
+//                    upDeviceList(mSelected.getConfigure());
+//                }else{
+//                    upDeviceList(null);
+//                }
+//            }
+        } else if (EthernetManager.NETWORK_STATE_CHANGED_ACTION.equals(action)) {
+            Log.i(TAG,"htt!!: handleEvent:NETWORK_STATE_CHANGED_ACTION");
+//            final NetworkInfo networkInfo = (NetworkInfo)
+//                    intent.getParcelableExtra(EthernetManager.EXTRA_NETWORK_INFO);
+//            final LinkProperties linkProperties = (LinkProperties)
+//                    intent.getParcelableExtra(EthernetManager.EXTRA_LINK_PROPERTIES);
+//            final int event = intent.getIntExtra(EthernetManager.EXTRA_ETHERNET_STATE,
+//                    EthernetManager.EVENT_CONFIGURATION_SUCCEEDED);
+//
+//            switch(event){
+//                case EthernetManager.EVENT_CONFIGURATION_SUCCEEDED:
+//                    for(LinkAddress l : linkProperties.getLinkAddresses()){
+//                        mIpPreference.setSummary(l.getAddress().getHostAddress());
+//                    }
+//                    EthernetDevInfo saveInfo = mEthManage.getSavedConfig();
+//                    if((mSelected != null) && (saveInfo != null)){
+//                        upDeviceList(saveInfo);
+//                        mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryon)
+//                                + mSelected.getConfigure().getIfName());
+//                    }
+//                    break;
+//                case EthernetManager.EVENT_CONFIGURATION_FAILED:
+////                    mIpPreference.setSummary("0.0.0.0");
+//                    break;
+//                case EthernetManager.EVENT_DISCONNECTED:
+////                    if(mEthEnable.isChecked())
+////                        mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryoff));
+////                    else
+////                        mEthEnable.setSummaryOn(context.getString(R.string.eth_dev_summaryoff));
+//                    break;
+//                default:
+//                    break;
+//            }
+        }
+    }
+
     /**
      * 修改ip,dns,网关等设置
      */
@@ -262,13 +373,15 @@ public class SetUpIpUtils {
         if (context == null || ip == null) {
             return;
         }
-        try {
-            WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            mWifiManager.setWifiEnabled(false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        final EthernetManager mEthManage = EthernetManager.getInstance();
+//        try {
+//            WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+//            mWifiManager.setWifiEnabled(false);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+        /* first, we must get the Service. */
+
         mDevInfo = new EthernetDevInfo();
         List<EthernetDevInfo> list = mEthManage.getDeviceNameList();
         for (EthernetDevInfo deviceInfo : list) {
@@ -297,7 +410,7 @@ public class SetUpIpUtils {
                     e.printStackTrace();
                 }
                 Log.e(TAG, "--------new:{" + mDevInfo.getIpAddress() + "}---------");
-                mDevInfo = null;
+//                mDevInfo = null;
                 return null;
             }
 
@@ -305,11 +418,13 @@ public class SetUpIpUtils {
             }
 
             protected void onPostExecute(Void unused) {
-//                    EthPreference uppref = (EthPreference) mEthDevices.findPreference(devIfo.getIfName());
+//                    EthPreference uppref = (EthPreference) mEthDevices.findPreference("eth0");
 //                    if(uppref != null)
 //                        uppref.update(devIfo);
             }
         }.execute();
+        enableEth();
+
         Log.e("TAG", "--------set ip---------");
         /*EthernetDevInfo oldInfo = EthernetManager.getInstance().getSavedConfig();
 
@@ -397,4 +512,64 @@ public class SetUpIpUtils {
         }
         return isRun;
     }
+
+
+
+    private class EthPreference extends Preference {
+        private EthernetDevInfo mEthConf;
+        private int mState = -1;
+
+        EthPreference(Context context, EthernetDevInfo ethConfigure) {
+            super(context);
+            setPersistent(false);
+            setOrder(0);
+//            setOnPreferenceClickListener(EthernetSettings.this);
+
+            mEthConf = ethConfigure;
+            update();
+        }
+
+        public EthernetDevInfo getConfigure() {
+            return mEthConf;
+        }
+
+        public void update() {
+            Context context = getContext();
+            String mode = null;
+            String hwaddr = null;
+
+            if(mEthConf == null)
+                return;
+
+            setTitle(mEthConf.getIfName());
+            if(mEthConf.getConnectMode() == EthernetDevInfo.ETHERNET_CONN_MODE_DHCP){
+                mode = "DHCP";
+            }else{
+                mode = "MANUAL";
+            }
+            hwaddr = mEthConf.getHwaddr().toUpperCase();
+            setSummary("MAC: " + hwaddr + " -- IP Mode:"+ mode);
+            setKey(mEthConf.getIfName());
+        }
+
+        public void update(EthernetDevInfo info){
+            mEthConf = info;
+            update();
+        }
+
+        @Override
+        public int compareTo(Preference preference) {
+            int result = -1;
+            if (preference instanceof EthPreference) {
+                EthPreference another = (EthPreference) preference;
+                EthernetDevInfo otherInfo = another.getConfigure();
+                if (mEthConf.getIfName() == otherInfo.getIfName())
+                    result = 0;
+                if (mEthConf.getHwaddr() == otherInfo.getHwaddr())
+                    result = 0;
+            }
+            return result;
+        }
+    }
+
 }

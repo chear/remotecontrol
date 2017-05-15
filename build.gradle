@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 //打包的输出路径
-ext.appReleaseDir = "E:\\androidapk\\remotecontrol\\outapk\\"
+ext.appReleaseDir = "E:\\androidapk\\remotecontrol\\output_apk\\"
 
 // 加载版本信息配置文件方法
 def loadProperties() {

@@ -10,12 +10,10 @@ import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +24,19 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.Notification;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.PixelFormat;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.ethernet.EthernetManager;
+import android.net.ethernet.IEthernetManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -47,19 +51,12 @@ import com.zkar.monitoringfacilities.DeviceUuidFactory;
 import com.zkar.monitoringfacilities.EquipmentMonitoring;
 import com.zkar.monitoringfacilities.LogCatThread;
 import com.zkar.monitoringfacilities.SetUpIpUtils;
-import com.zkar.monitoringfacilities.TestEquipmentInformationThread;
 import com.zkar.monitoringfacilities.VideoThread;
-import com.zkar.outside.util.CopyFileUtils;
-import com.zkar.outside.util.DownLoad;
 import com.zkar.outside.util.FileCache;
-import com.zkar.outside.util.HttpDownload;
 import com.zkar.outside.util.HttpUtils;
-import com.zkar.outside.util.PackageUtils;
 import com.zkar.outside.util.ShellUtils;
-import com.zkar.outside.util.SocketUtils;
-import com.zkar.outside.util.XmlUtils;
 
-public class MyService extends Service implements SurfaceHolder.Callback {
+public class MyService extends Service implements SurfaceHolder.Callback  {
 	private final int VIDEO_RECORDING = 11111;
 	private final int GET_ORDER = 2;
 	public static ServerSocket serverSocket = null;
@@ -99,6 +96,12 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 	private boolean getMessageQueueThreadblock = false;//等待接收指令的线程
 
 	private final String TAG = "ZKAR";
+
+	//TODO htt
+	private final IntentFilter mFilter =  new IntentFilter();
+	private BroadcastReceiver mEthStateReceiver;
+	private ConnectivityManager mService;
+	private EthernetManager eth0;
 
 	public final Handler handle = new Handler() {
 		public void handleMessage(Message msg) {
@@ -230,7 +233,29 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 						// 组播返回
 						getSocket.send(new DatagramPacket(backbuffer, backbuffer.length, address, REMOTE_SERVER_PORT));
 					} else if (EDITIP.equals(commandMess0) || EDITIP2.equals(commandMess0)) {
+						/* update ip config*/
 						Log.i(TAG,"htt!!! -- Start to set IP Configration");
+						mService = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+						if(mService != null){
+							NetworkInfo networkinfo = mService.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
+							if(networkinfo.isConnected()){
+//								mEthEnable.setSummaryOn(getActivity().getString(R.string.eth_dev_summaryon));
+								Log.i(TAG,"htt!!: CONNECTED -- USED DEVICE");
+							}else{
+//								mEthEnable.setSummaryOff(getActivity().getString(R.string.eth_dev_summaryoff));
+								Log.i(TAG,"htt!!: DISCONNECTED");
+							}
+						}
+
+						mFilter.addAction(EthernetManager.ETHERNET_STATE_CHANGED_ACTION);
+						mFilter.addAction(EthernetManager.NETWORK_STATE_CHANGED_ACTION);
+//						Log.e(TAG,"send action for EthernetManager.ETHERNET_STATE_CHANGED_ACTION and EthernetManager.NETWORK_STATE_CHANGED_ACTION ");
+//						mEthStateReceiver = new BroadcastReceiver() {
+//							@Override
+//							public void onReceive(Context context, Intent intent) {
+//								SetUpIpUtils.getInstance().handleEvent(context, intent);
+//							}
+//						};
 						setIPConfiguration(commandMess,sendAddress);
 						Log.i(TAG,"htt!!! -- Finishing to set IP Configration");
 					} else if(EDIT_DEVICE_NAME.equals(commandMess0)){
@@ -647,7 +672,7 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 	 *一直等待获取命令
 	 * @author Administrator
 	 */
-	private class GetMessageQueueThread extends Thread{
+	private class GetMessageQueueThread extends Thread {
 		@Override
 		public void run() {
 			super.run();
@@ -657,12 +682,14 @@ public class MyService extends Service implements SurfaceHolder.Callback {
 			String serviceurl = myapp.getServiceurl();
 			List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
 			urlParameters.add(new BasicNameValuePair("key", machineCode));
-			urlParameters.add(new BasicNameValuePair("Name",myapp.getLocalIP()));
-			urlParameters.add(new BasicNameValuePair("Type","command"));
-			String getOrder =HttpUtils.doPostLongTime(serviceurl+ "/MessageQueue/Get",
-					urlParameters,18*60*1000);
-			handle.obtainMessage(GET_ORDER,getOrder).sendToTarget();
+			urlParameters.add(new BasicNameValuePair("Name", myapp.getLocalIP()));
+			urlParameters.add(new BasicNameValuePair("Type", "command"));
+			String getOrder = HttpUtils.doPostLongTime(serviceurl + "/MessageQueue/Get",
+					urlParameters, 18 * 60 * 1000);
+			handle.obtainMessage(GET_ORDER, getOrder).sendToTarget();
 			getMessageQueueThreadblock = false;
 		}
 	}
 }
+
+

@@ -234,28 +234,6 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 						getSocket.send(new DatagramPacket(backbuffer, backbuffer.length, address, REMOTE_SERVER_PORT));
 					} else if (EDITIP.equals(commandMess0) || EDITIP2.equals(commandMess0)) {
 						/* update ip config*/
-						Log.i(TAG,"htt!!! -- Start to set IP Configration");
-						mService = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-						if(mService != null){
-							NetworkInfo networkinfo = mService.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
-							if(networkinfo.isConnected()){
-//								mEthEnable.setSummaryOn(getActivity().getString(R.string.eth_dev_summaryon));
-								Log.i(TAG,"htt!!: CONNECTED -- USED DEVICE");
-							}else{
-//								mEthEnable.setSummaryOff(getActivity().getString(R.string.eth_dev_summaryoff));
-								Log.i(TAG,"htt!!: DISCONNECTED");
-							}
-						}
-
-						mFilter.addAction(EthernetManager.ETHERNET_STATE_CHANGED_ACTION);
-						mFilter.addAction(EthernetManager.NETWORK_STATE_CHANGED_ACTION);
-//						Log.e(TAG,"send action for EthernetManager.ETHERNET_STATE_CHANGED_ACTION and EthernetManager.NETWORK_STATE_CHANGED_ACTION ");
-//						mEthStateReceiver = new BroadcastReceiver() {
-//							@Override
-//							public void onReceive(Context context, Intent intent) {
-//								SetUpIpUtils.getInstance().handleEvent(context, intent);
-//							}
-//						};
 						setIPConfiguration(commandMess,sendAddress);
 						Log.i(TAG,"htt!!! -- Finishing to set IP Configration");
 					} else if(EDIT_DEVICE_NAME.equals(commandMess0)){

@@ -4,3 +4,11 @@
 /.gradle/*
 /null/*
 build/*
+
+
+.gradle/3.3/taskArtifacts/taskArtifacts.lock
+.idea/workspace.xml
+com.zkar.pis.remotecontrol.iml
+
+
+

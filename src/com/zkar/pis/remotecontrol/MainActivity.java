@@ -1,6 +1,7 @@
 package com.zkar.pis.remotecontrol;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,5 +17,7 @@ public class MainActivity extends Activity {
 		startService(intent);
 		finish();
 		Log.i("WatchDog", "remotecontrolMainActivity  onCreate");
+
+		ContentResolver contentResolver = getContentResolver();
 	}
 }

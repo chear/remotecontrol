@@ -26,6 +26,7 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -233,9 +234,15 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 						// 组播返回
 						getSocket.send(new DatagramPacket(backbuffer, backbuffer.length, address, REMOTE_SERVER_PORT));
 					} else if (EDITIP.equals(commandMess0) || EDITIP2.equals(commandMess0)) {
-						/* update ip config*/
-						setIPConfiguration(commandMess,sendAddress);
+						/* update if configuration on A20 plutform */
+//						setIPConfiguration(commandMess,sendAddress);
+
+
+						/* update if configuration on 3188 plutform */
+						ContentResolver content = getContentResolver();
+						setIPConfigurationByContentReslover(content,commandMess,sendAddress);
 						Log.i(TAG,"htt!!! -- Finishing to set IP Configration");
+
 					} else if(EDIT_DEVICE_NAME.equals(commandMess0)){
 						if(commandMess.length>1){
 							writeTheDeviceName(commandMess[1]);// 修改设备名称
@@ -435,6 +442,26 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 			sendDatagramPacketMessage(sendAddress, "1001");
 		}
 		detectionIpblock=false;//监测ip
+	}
+
+	/*
+	*  update IP configuration on 3188 plutform
+	 */
+	private void setIPConfigurationByContentReslover(ContentResolver context,String[] commandMess,SocketAddress sendAddress){
+		SharedPreferences ipParameters = getSharedPreferences(
+				"ipparameters", Context.MODE_MULTI_PROCESS);
+		Editor editor = ipParameters.edit();
+		editor.putString("ip", commandMess[1]);
+		editor.putString("dns", commandMess[2]);
+		editor.putString("gateway", commandMess[3]);
+		editor.putString("mask", commandMess[4]);
+		editor.putBoolean("DYNAMICIP",false);//重启时是否设置ip动态获取，false否
+		editor.commit();
+		// 修改ip等
+		Log.i(TAG,"htt!!! function called ,ip="+commandMess[1]+" ,mask="+commandMess[4]+" ,dns= "+commandMess[2]+",gateway="+commandMess[3]);
+		SetUpIpUtils.getInstance().editEtherByContentResolver(context, commandMess[1],
+				commandMess[2], commandMess[3], commandMess[4]);
+
 	}
 
 	/**

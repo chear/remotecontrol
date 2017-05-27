@@ -17,6 +17,8 @@ loadProperties()
 
 dependencies {
     compile fileTree(include: '*.jar', dir: 'libs')
+    compile fileTree(include: '*.jar', dir: 'libs//3188')
+    compile fileTree(include: '*.jar', dir: 'libs//a20')
    // classpath 'com.android.tools.build:gradle:2.2.1'
 }
 

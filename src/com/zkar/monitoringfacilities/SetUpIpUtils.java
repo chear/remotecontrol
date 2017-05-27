@@ -7,34 +7,72 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-//import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-//import java.util.Set;
-
 import org.apache.http.conn.util.InetAddressUtils;
-
+import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.ethernet.EthernetDevInfo;
 import android.net.ethernet.EthernetManager;
 import android.os.AsyncTask;
 import android.preference.Preference;
-import android.preference.PreferenceCategory;
+import android.provider.Settings.Secure;
 import android.util.Log;
-
-import com.zkar.pis.remotecontrol.MyService;
-import com.zkar.pis.remotecontrol.R;
 import static com.zkar.outside.util.PackageUtils.TAG;
 
 public class SetUpIpUtils {
+
     private final String TAG = "RemoteControl_SetupIP";
     private static SetUpIpUtils setUpIpUtils;
     private EthernetDevInfo mDevInfo;
+
+    public final static boolean DEBUG = false;
+
+    /**
+     * Whether to use static IP and other static network attributes.
+     * @hide
+     * Set to 1 for true and 0 for false.
+     */
+    public static final String ETHERNET_USE_STATIC_IP = "ethernet_use_static_ip";
+
+    /**
+     * The static IP address.
+     * @hide
+     * Example: "192.168.1.51"
+     */
+    public static final String ETHERNET_STATIC_IP = "ethernet_static_ip";
+
+    /**
+     * If using static IP, the gateway's IP address.
+     * @hide
+     * Example: "192.168.1.1"
+     */
+    public static final String ETHERNET_STATIC_GATEWAY = "ethernet_static_gateway";
+
+    /**
+     * If using static IP, the net mask.
+     * @hide
+     * Example: "255.255.255.0"
+     */
+    public static final String ETHERNET_STATIC_NETMASK = "ethernet_static_netmask";
+
+    /**
+     * If using static IP, the primary DNS's IP address.
+     * @hide
+     * Example: "192.168.1.1"
+     */
+    public static final String ETHERNET_STATIC_DNS1 = "ethernet_static_dns1";
+
+    /**
+     * If using static IP, the secondary DNS's IP address.
+     * @hide
+     * Example: "192.168.1.2"
+     */
+    public static final String ETHERNET_STATIC_DNS2 = "ethernet_static_dns2";
+
+    public static final String ETHERNET_ON = "ethernet_on";
+
 
     //TODO htt
     private List<EthernetDevInfo> mListDevices = new ArrayList<EthernetDevInfo>();
@@ -44,8 +82,10 @@ public class SetUpIpUtils {
     private SetUpIpUtils() {
 //        mEthDevices = (PreferenceCategory) findPreference(KEY_DEVICES_TITLE);
 //        mEthDevices.setOrderingAsAdded(false);
-        mEthManage = EthernetManager.getInstance();
-
+        if(DEBUG)
+            mEthManage = EthernetManager.getInstance();
+        else
+            mEthManage =null;
     }
 
     /**
@@ -281,6 +321,10 @@ public class SetUpIpUtils {
         }
 
         mDevInfo = new EthernetDevInfo();
+        if(null == mEthManage) {
+            Log.i(TAG,"call editEthernet function, the mEthManage its null  !!!!");
+            return;
+        }
         List<EthernetDevInfo> list = mEthManage.getDeviceNameList();
         for (EthernetDevInfo deviceInfo : list) {
             if ("eth0".equals(deviceInfo.getIfName())) {
@@ -339,6 +383,62 @@ public class SetUpIpUtils {
 		EthernetDevInfo newInfo = EthernetManager.getInstance().getSavedConfig();
 		Log.e("TAG", "--------new:{"+newInfo.getIpAddress()+"}---------");
 		*/
+    }
+
+
+    /**
+     * update static up to 3188 plutform
+     */
+    public void editEtherByContentResolver(ContentResolver contentResolver,String ip, String dns, String gateway, String mask ){
+        final ContentResolver asycContent = contentResolver;
+        final String asycIP = ip;
+        final String asycMask = mask;
+        final String asycDNS = dns;
+        final String asycGateWay = gateway;
+        new AsyncTask<Void, Void, Void>() {
+            protected void onPreExecute() {
+            }
+            @Override
+            protected Void doInBackground(Void... unused) {
+                try {
+                    //TODO : setting the static ip
+                    android.provider.Settings.System.putString(asycContent, ETHERNET_STATIC_IP, asycIP);
+
+                    //TODO : setting the mask
+                    android.provider.Settings.System.putString(asycContent, ETHERNET_STATIC_NETMASK, asycMask);
+
+                    //TODO : setting the dns
+                    android.provider.Settings.System.putString(asycContent, ETHERNET_STATIC_DNS1, asycDNS);
+
+                    //TODO : setting the gateway
+                    android.provider.Settings.System.putString(asycContent, ETHERNET_STATIC_GATEWAY, asycGateWay);
+
+                    //TODO : use the static ip address for settings
+                    android.provider.Settings.System.putInt(asycContent, ETHERNET_USE_STATIC_IP, 1);
+
+                    // disable ethernet
+                    boolean enable = Secure.getInt(asycContent, ETHERNET_ON, 1) == 1;
+                    Log.i(TAG,"notify Secure.ETHERNET_ON changed. enable = " + enable);
+                    if(enable) {
+                        Log.i(TAG, "first disable");
+                        Secure.putInt(asycContent, ETHERNET_ON, 0);
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                        }
+                        Log.i(TAG, "second enable");
+                        Secure.putInt(asycContent, ETHERNET_ON, 1);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+            protected void onProgressUpdate(Void... unused) {
+            }
+            protected void onPostExecute(Void unused) {
+            }
+        }.execute();
     }
 
     /**
@@ -405,7 +505,6 @@ public class SetUpIpUtils {
         }
         return isRun;
     }
-
 
 
     private class EthPreference extends Preference {

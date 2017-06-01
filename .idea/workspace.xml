@@ -9,11 +9,7 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="41757aaf-bd9b-4d6b-b55d-ccd07d63098a" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.3/taskArtifacts/taskArtifacts.lock" afterPath="$PROJECT_DIR$/.gradle/3.3/taskArtifacts/taskArtifacts.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/com.zkar.pis.remotecontrol.iml" afterPath="$PROJECT_DIR$/com.zkar.pis.remotecontrol.iml" />
-    </list>
+    <list default="true" id="41757aaf-bd9b-4d6b-b55d-ccd07d63098a" name="Default" comment="" />
     <ignored path="com.zkar.pis.remotecontrol.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -48,7 +44,7 @@
       <file leaf-file-name="MyService.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/zkar/pis/remotecontrol/MyService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="27">
+            <state relative-caret-position="108">
               <caret line="58" column="13" selection-start-line="58" selection-start-column="13" selection-end-line="58" selection-end-column="13" />
               <folding />
             </state>
@@ -78,7 +74,7 @@
       <file leaf-file-name="UpdateUtils.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/zkar/pis/remotecontrol/UpdateUtils.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="253">
+            <state relative-caret-position="3240">
               <caret line="141" column="70" selection-start-line="141" selection-start-column="46" selection-end-line="141" selection-end-column="70" />
               <folding />
             </state>
@@ -786,7 +782,7 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="E:\GitProject\com.zkar.pis.remotecontrol" value="1494756190755" />
+        <entry key="E:\GitProject\com.zkar.pis.remotecontrol" value="1496288308709" />
       </map>
     </option>
     <option name="projectBuildClasspath">
@@ -1047,8 +1043,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="292" />
-    <option name="y" value="69" />
+    <option name="x" value="632" />
+    <option name="y" value="23" />
     <option name="width" value="2512" />
     <option name="height" value="1589" />
   </component>
@@ -1517,8 +1513,8 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="292" y="69" width="2512" height="1589" extended-state="0" />
-    <editor active="true" />
+    <frame x="632" y="23" width="2512" height="1589" extended-state="0" />
+    <editor active="false" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298969" sideWeight="0.49669695" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1922,7 +1918,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/zkar/pis/remotecontrol/UpdateUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
+        <state relative-caret-position="3240">
           <caret line="141" column="70" selection-start-line="141" selection-start-column="46" selection-end-line="141" selection-end-column="70" />
           <folding />
         </state>
@@ -1930,7 +1926,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/zkar/pis/remotecontrol/MyService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="27">
+        <state relative-caret-position="108">
           <caret line="58" column="13" selection-start-line="58" selection-start-column="13" selection-end-line="58" selection-end-column="13" />
           <folding />
         </state>

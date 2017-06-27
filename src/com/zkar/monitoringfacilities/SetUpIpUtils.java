@@ -318,7 +318,8 @@ public class SetUpIpUtils {
      * 修改ip,dns,网关等设置
      */
     public void editEthernet(Context context, String ip, String dns, String gateway, String mask) {
-        if (context == null || ip == null || gateway == null || mask == null) {
+        if (context == null || ip == null || ip.isEmpty() || gateway == null ||
+                gateway.isEmpty() || mask == null || mask.isEmpty()) {
             return;
         }
 

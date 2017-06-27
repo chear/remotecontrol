@@ -361,53 +361,6 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 	}
 
 	/**
-	 * 监测子网掩码是否错误，启动一直等待获取命令的线程
-	 * 给室内或室外屏发socket消息根据是否有返回判断是否程序假死并传给服务器
-	 * @author Administrator
-	 */
-	/**
-	class DetectionIpAndMaskThread extends Thread {
-		@Override
-		public void run() {
-			super.run();
-			int count = 0;
-			SharedPreferences ipParameters = getSharedPreferences(
-					"ipparameters", Context.MODE_MULTI_PROCESS);
-			while (true) {
-				if (count == 50) {// 过5分钟检查一次ip
-					count = 0;
-					if(!detectionIpblock){
-						String mask = ipParameters.getString("mask",
-								"255.255.255.0");
-						String getMask = SetUpIpUtils.getInstance().getMask();
-						System.out.println("监测mask mask:" + mask + " getMask:"
-								+ getMask);
-						if (!mask.equals(getMask)) {
-							System.out.println("mask被篡改..");
-							String ip = ipParameters.getString("ip", null);
-							String dns = ipParameters.getString("dns", null);
-							String gateway = ipParameters.getString("gateway", null);
-							SetUpIpUtils.getInstance().editEthernet( ip, dns,gateway, mask);
-						}
-					}
-					//一直等待获取命令的线程
-					if(!getMessageQueueThreadblock){
-						new GetMessageQueueThread().start();
-					}
-				}
-				try {
-					sleep(1000*6);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				count++;
-//				surveyMessageSending();
-			}
-		}
-	}
-	**/
-
-	/**
 	 * 设置ip动态获取
 	 * */
 	private void setDynamicIp(){

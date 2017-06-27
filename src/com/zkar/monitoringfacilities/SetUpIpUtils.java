@@ -13,12 +13,14 @@ import java.util.List;
 import org.apache.http.conn.util.InetAddressUtils;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.net.ethernet.EthernetDevInfo;
-import android.net.ethernet.EthernetManager;
+//import android.net.ethernet.EthernetDevInfo;
+//import android.net.ethernet.EthernetManager;
 import android.os.AsyncTask;
 import android.preference.Preference;
 import android.provider.Settings.Secure;
 import android.util.Log;
+import com.zkar.pis.remotecontrol.MyService;
+import com.zkar.pis.remotecontrol.R;
 import static com.zkar.outside.util.PackageUtils.TAG;
 
 public class SetUpIpUtils {
@@ -76,9 +78,9 @@ public class SetUpIpUtils {
 
     //TODO htt
     private List<EthernetDevInfo> mListDevices = new ArrayList<EthernetDevInfo>();
-    private final EthernetManager mEthManage ;
+    private final EthernetManager mEthManage;
 
-//    private PreferenceCategory mEthDevices;
+    //    private PreferenceCategory mEthDevices;
     private SetUpIpUtils() {
 //        mEthDevices = (PreferenceCategory) findPreference(KEY_DEVICES_TITLE);
 //        mEthDevices.setOrderingAsAdded(false);
@@ -316,7 +318,7 @@ public class SetUpIpUtils {
      * 修改ip,dns,网关等设置
      */
     public void editEthernet(Context context, String ip, String dns, String gateway, String mask) {
-        if (context == null || ip == null) {
+        if (context == null || ip == null || gateway == null || mask == null) {
             return;
         }
 
@@ -355,8 +357,10 @@ public class SetUpIpUtils {
 //                mDevInfo = null;
                 return null;
             }
+
             protected void onProgressUpdate(Void... unused) {
             }
+
             protected void onPostExecute(Void unused) {
             }
         }.execute();
@@ -530,21 +534,21 @@ public class SetUpIpUtils {
             String mode = null;
             String hwaddr = null;
 
-            if(mEthConf == null)
+            if (mEthConf == null)
                 return;
 
             setTitle(mEthConf.getIfName());
-            if(mEthConf.getConnectMode() == EthernetDevInfo.ETHERNET_CONN_MODE_DHCP){
+            if (mEthConf.getConnectMode() == EthernetDevInfo.ETHERNET_CONN_MODE_DHCP) {
                 mode = "DHCP";
-            }else{
+            } else {
                 mode = "MANUAL";
             }
             hwaddr = mEthConf.getHwaddr().toUpperCase();
-            setSummary("MAC: " + hwaddr + " -- IP Mode:"+ mode);
+            setSummary("MAC: " + hwaddr + " -- IP Mode:" + mode);
             setKey(mEthConf.getIfName());
         }
 
-        public void update(EthernetDevInfo info){
+        public void update(EthernetDevInfo info) {
             mEthConf = info;
             update();
         }

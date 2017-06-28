@@ -1,0 +1,5 @@
+2017.06.28	Huang.Tao
+Comment:
+1. modified SetUpIpUtils.java remove the referernce of the 'EthernetManager' and 'IEthernetManager', 
+2. remove 'public void editEthernet(Context, String, String, String, String)' 'private void enableEth()' function in SetUpIpUtils.java
+3. and also rebuild it successed for 3188 platform. 

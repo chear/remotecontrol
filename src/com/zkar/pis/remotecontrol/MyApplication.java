@@ -4,6 +4,8 @@ import com.zkar.monitoringfacilities.DeviceUuidFactory;
 import com.zkar.outside.util.XmlUtils;
 
 import android.app.Application;
+import android.content.Context;
+//import android.support.multidex.MultiDex;
 
 public class MyApplication extends Application {
 	private String localIP;
@@ -33,6 +35,12 @@ public class MyApplication extends Application {
 			}
 		}
 	}
+
+//	@Override
+//	protected void attachBaseContext(Context base) {
+//		super.attachBaseContext(base);
+//		MultiDex.install(this);
+//	}
 
 	public String getLocalIP() {
 		return localIP;

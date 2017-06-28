@@ -36,8 +36,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.PixelFormat;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.ethernet.EthernetManager;
-import android.net.ethernet.IEthernetManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -102,7 +100,6 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 	private final IntentFilter mFilter =  new IntentFilter();
 	private BroadcastReceiver mEthStateReceiver;
 	private ConnectivityManager mService;
-	private EthernetManager eth0;
 
 	public final Handler handle = new Handler() {
 		public void handleMessage(Message msg) {
@@ -234,10 +231,6 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 						// 组播返回
 						getSocket.send(new DatagramPacket(backbuffer, backbuffer.length, address, REMOTE_SERVER_PORT));
 					} else if (EDITIP.equals(commandMess0) || EDITIP2.equals(commandMess0)) {
-						/* update if configuration on A20 plutform */
-//						setIPConfiguration(commandMess,sendAddress);
-
-
 						/* update if configuration on 3188 plutform */
 						ContentResolver content = getContentResolver();
 						setIPConfigurationByContentReslover(content,commandMess,sendAddress);
@@ -373,30 +366,6 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 		SetUpIpUtils.getInstance().setDynamicAcquisitionIP();
 	}
 
-	/**
-	 * 设置修改ip、网关、子网掩码等配置
-	 * */
-	private void setIPConfiguration(String[] commandMess,SocketAddress sendAddress){
-		SharedPreferences ipParameters = getSharedPreferences(
-				"ipparameters", Context.MODE_MULTI_PROCESS);
-		Editor editor = ipParameters.edit();
-		editor.putString("ip", commandMess[1]);
-		editor.putString("dns", commandMess[2]);
-		editor.putString("gateway", commandMess[3]);
-		editor.putString("mask", commandMess[4]);
-		editor.putBoolean("DYNAMICIP",false);//重启时是否设置ip动态获取，false否
-		editor.commit();
-		// 修改ip等
-		SetUpIpUtils.getInstance().editEthernet(this, commandMess[1],
-				commandMess[2], commandMess[3], commandMess[4]);
-		// 修改设备名称
-		writeTheDeviceName(commandMess[5]);
-		if (EDITIP2.equals(commandMess[0])) {
-			sendDatagramPacketMessage(sendAddress, "1001");
-		}
-		detectionIpblock=false;//监测ip
-	}
-
 	/*
 	*  update IP configuration on 3188 plutform
 	 */
@@ -414,6 +383,12 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 		Log.i(TAG,"htt!!! function called ,ip="+commandMess[1]+" ,mask="+commandMess[4]+" ,dns= "+commandMess[2]+",gateway="+commandMess[3]);
 		SetUpIpUtils.getInstance().editEtherByContentResolver(context, commandMess[1],
 				commandMess[2], commandMess[3], commandMess[4]);
+		// 修改设备名称
+		writeTheDeviceName(commandMess[5]);
+		if (EDITIP2.equals(commandMess[0])) {
+			sendDatagramPacketMessage(sendAddress, "1001");
+		}
+		detectionIpblock=false;//监测ip
 
 	}
 

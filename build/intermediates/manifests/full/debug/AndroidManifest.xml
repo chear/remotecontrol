@@ -3,7 +3,7 @@
     package="com.zkar.pis.remotecontrol"
     android:sharedUserId="android.uid.system"
     android:versionCode="1"
-    android:versionName="2.3.3" >
+    android:versionName="2.3" >
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -35,6 +35,10 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        <uses-library
+            android:name="com.**.**"
+            android:required="false" />
+
         <activity
             android:name="com.zkar.pis.remotecontrol.MainActivity"
             android:label="@string/app_name"

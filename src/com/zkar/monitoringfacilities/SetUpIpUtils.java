@@ -7,46 +7,82 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-//import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-//import java.util.Set;
-
 import org.apache.http.conn.util.InetAddressUtils;
-
+import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.ethernet.EthernetDevInfo;
+//import android.net.ethernet.EthernetDevInfo;
+//import android.net.ethernet.EthernetManager;
 import android.net.ethernet.EthernetManager;
 import android.os.AsyncTask;
 import android.preference.Preference;
-import android.preference.PreferenceCategory;
+import android.provider.Settings.Secure;
 import android.util.Log;
-
 import com.zkar.pis.remotecontrol.MyService;
 import com.zkar.pis.remotecontrol.R;
-
 import static com.zkar.outside.util.PackageUtils.TAG;
 
 public class SetUpIpUtils {
+
     private final String TAG = "RemoteControl_SetupIP";
+    private final String ETHERNET_SERVICE = "ethernet";
+    private Context myContext;
     private static SetUpIpUtils setUpIpUtils;
-    private EthernetDevInfo mDevInfo;
+//    private EthernetDevInfo mDevInfo;
 
-    //TODO htt
-    private List<EthernetDevInfo> mListDevices = new ArrayList<EthernetDevInfo>();
-    private final EthernetManager mEthManage;
+    public final static boolean DEBUG = false;
 
-    //    private PreferenceCategory mEthDevices;
+    /**
+     * Whether to use static IP and other static network attributes.
+     * @hide
+     * Set to 1 for true and 0 for false.
+     */
+    public static final String ETHERNET_USE_STATIC_IP = "ethernet_use_static_ip";
+
+    /**
+     * The static IP address.
+     * @hide
+     * Example: "192.168.1.51"
+     */
+    public static final String ETHERNET_STATIC_IP = "ethernet_static_ip";
+
+    /**
+     * If using static IP, the gateway's IP address.
+     * @hide
+     * Example: "192.168.1.1"
+     */
+    public static final String ETHERNET_STATIC_GATEWAY = "ethernet_static_gateway";
+
+    /**
+     * If using static IP, the net mask.
+     * @hide
+     * Example: "255.255.255.0"
+     */
+    public static final String ETHERNET_STATIC_NETMASK = "ethernet_static_netmask";
+
+    /**
+     * If using static IP, the primary DNS's IP address.
+     * @hide
+     * Example: "192.168.1.1"
+     */
+    public static final String ETHERNET_STATIC_DNS1 = "ethernet_static_dns1";
+
+    /**
+     * If using static IP, the secondary DNS's IP address.
+     * @hide
+     * Example: "192.168.1.2"
+     */
+    public static final String ETHERNET_STATIC_DNS2 = "ethernet_static_dns2";
+
+    public static final String ETHERNET_ON = "ethernet_on";
+
+
+//    //TODO htt
+    private final EthernetManager mEthManage = null;
+
     private SetUpIpUtils() {
-//        mEthDevices = (PreferenceCategory) findPreference(KEY_DEVICES_TITLE);
-//        mEthDevices.setOrderingAsAdded(false);
-        mEthManage = EthernetManager.getInstance();
-
     }
 
     /**
@@ -274,75 +310,58 @@ public class SetUpIpUtils {
     }
 
     /**
-     * 修改ip,dns,网关等设置
+     * update static up to 3188 plutform
      */
-    public void editEthernet(Context context, String ip, String dns, String gateway, String mask) {
-        if (context == null || ip == null || ip.isEmpty() || gateway == null ||
-                gateway.isEmpty() || mask == null || mask.isEmpty()) {
-            return;
-        }
-
-        mDevInfo = new EthernetDevInfo();
-        List<EthernetDevInfo> list = mEthManage.getDeviceNameList();
-        for (EthernetDevInfo deviceInfo : list) {
-            if ("eth0".equals(deviceInfo.getIfName())) {
-                mDevInfo = deviceInfo;
-                break;
-            }
-        }
-        mDevInfo.setConnectMode(EthernetDevInfo.ETHERNET_CONN_MODE_MANUAL);
-        //mDevInfo.setIfName("eth0");
-        mDevInfo.setIpAddress(ip);
-        mDevInfo.setNetMask(mask);
-        mDevInfo.setDnsAddr(dns);
-        mDevInfo.setGateWay(gateway);
-
+    public void editEtherByContentResolver(ContentResolver contentResolver,String ip, String dns, String gateway, String mask ){
+        final ContentResolver asycContent = contentResolver;
+        final String asycIP = ip;
+        final String asycMask = mask;
+        final String asycDNS = dns;
+        final String asycGateWay = gateway;
         new AsyncTask<Void, Void, Void>() {
             protected void onPreExecute() {
             }
-
             @Override
             protected Void doInBackground(Void... unused) {
                 try {
-                    mEthManage.updateDevInfo(mDevInfo);
-                    Thread.sleep(500);
+                    //TODO : setting the static ip
+                    android.provider.Settings.System.putString(asycContent, ETHERNET_STATIC_IP, asycIP);
+
+                    //TODO : setting the mask
+                    android.provider.Settings.System.putString(asycContent, ETHERNET_STATIC_NETMASK, asycMask);
+
+                    //TODO : setting the dns
+                    android.provider.Settings.System.putString(asycContent, ETHERNET_STATIC_DNS1, asycDNS);
+
+                    //TODO : setting the gateway
+                    android.provider.Settings.System.putString(asycContent, ETHERNET_STATIC_GATEWAY, asycGateWay);
+
+                    //TODO : use the static ip address for settings
+                    android.provider.Settings.System.putInt(asycContent, ETHERNET_USE_STATIC_IP, 1);
+
+                    // disable ethernet
+                    boolean enable = Secure.getInt(asycContent, ETHERNET_ON, 1) == 1;
+                    Log.i(TAG,"notify Secure.ETHERNET_ON changed. enable = " + enable);
+                    if(enable) {
+                        Log.i(TAG, "first disable");
+                        Secure.putInt(asycContent, ETHERNET_ON, 0);
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                        }
+                        Log.i(TAG, "second enable");
+                        Secure.putInt(asycContent, ETHERNET_ON, 1);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                Log.e(TAG, "--------new:{" + mDevInfo.getIpAddress() + "}---------");
-//                mDevInfo = null;
                 return null;
             }
-
             protected void onProgressUpdate(Void... unused) {
             }
-
             protected void onPostExecute(Void unused) {
             }
         }.execute();
-        /*  finally, we must enable ethernet whatever */
-        enableEth();
-
-        /*
-        EthernetDevInfo oldInfo = EthernetManager.getInstance().getSavedConfig();
-		Log.e("TAG", "--------old:{"+oldInfo.getIpAddress()+"}---------");
-
-		oldInfo.setConnectMode(EthernetDevInfo.ETHERNET_CONN_MODE_MANUAL);
-		oldInfo.setIpAddress(ip);
-		oldInfo.setNetMask(mask);
-		oldInfo.setDnsAddr(dns);
-		oldInfo.setGateWay(gateway);
-		try{
-			EthernetManager.getInstance().updateDevInfo(oldInfo);
-			Thread.sleep(500);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		enableEth();
-
-		EthernetDevInfo newInfo = EthernetManager.getInstance().getSavedConfig();
-		Log.e("TAG", "--------new:{"+newInfo.getIpAddress()+"}---------");
-		*/
     }
 
     /**
@@ -350,29 +369,6 @@ public class SetUpIpUtils {
      */
     public void setDynamicAcquisitionIP() {
 
-    }
-
-    private void enableEth() {
-        try {
-            EthernetManager.getInstance().setEnabled(false);
-//            BackupManager.dataChanged("com.android.providers.settings");
-
-            new Thread() {
-                public void run() {
-                    try {
-                        EthernetManager.getInstance().setEnabled(true);
-//                        BackupManager.dataChanged("com.android.providers.settings");
-                        Thread.sleep(500);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                ;
-            }.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -408,64 +404,6 @@ public class SetUpIpUtils {
             }
         }
         return isRun;
-    }
-
-
-    private class EthPreference extends Preference {
-        private EthernetDevInfo mEthConf;
-        private int mState = -1;
-
-        EthPreference(Context context, EthernetDevInfo ethConfigure) {
-            super(context);
-            setPersistent(false);
-            setOrder(0);
-//            setOnPreferenceClickListener(EthernetSettings.this);
-
-            mEthConf = ethConfigure;
-            update();
-        }
-
-        public EthernetDevInfo getConfigure() {
-            return mEthConf;
-        }
-
-        public void update() {
-            Context context = getContext();
-            String mode = null;
-            String hwaddr = null;
-
-            if (mEthConf == null)
-                return;
-
-            setTitle(mEthConf.getIfName());
-            if (mEthConf.getConnectMode() == EthernetDevInfo.ETHERNET_CONN_MODE_DHCP) {
-                mode = "DHCP";
-            } else {
-                mode = "MANUAL";
-            }
-            hwaddr = mEthConf.getHwaddr().toUpperCase();
-            setSummary("MAC: " + hwaddr + " -- IP Mode:" + mode);
-            setKey(mEthConf.getIfName());
-        }
-
-        public void update(EthernetDevInfo info) {
-            mEthConf = info;
-            update();
-        }
-
-        @Override
-        public int compareTo(Preference preference) {
-            int result = -1;
-            if (preference instanceof EthPreference) {
-                EthPreference another = (EthPreference) preference;
-                EthernetDevInfo otherInfo = another.getConfigure();
-                if (mEthConf.getIfName() == otherInfo.getIfName())
-                    result = 0;
-                if (mEthConf.getHwaddr() == otherInfo.getHwaddr())
-                    result = 0;
-            }
-            return result;
-        }
     }
 
 }

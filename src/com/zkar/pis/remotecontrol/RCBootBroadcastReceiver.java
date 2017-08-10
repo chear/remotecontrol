@@ -1,6 +1,7 @@
 package com.zkar.pis.remotecontrol;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -74,7 +75,10 @@ public class RCBootBroadcastReceiver extends BroadcastReceiver {
             // String dns = ipParameters.getString("dns", null);
             String gateway = ipParameters.getString("gateway", null);
             String mask = ipParameters.getString("mask", "255.255.255.0");
-            SetUpIpUtils.getInstance().editEthernet(context, ip, null, gateway, mask);
+//            SetUpIpUtils.getInstance().editEthernet(context, ip, null, gateway, mask);
+
+            ContentResolver cntResl = context.getContentResolver();
+            SetUpIpUtils.getInstance().editEtherByContentResolver(cntResl, ip, null, gateway, mask);
         }
         try {
             Thread.sleep(500);

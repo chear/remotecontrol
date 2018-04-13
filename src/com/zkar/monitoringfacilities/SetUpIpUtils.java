@@ -25,6 +25,7 @@ import android.net.ethernet.EthernetManager;
 import android.os.AsyncTask;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.zkar.pis.remotecontrol.MyService;
@@ -465,4 +466,8 @@ public class SetUpIpUtils {
         }
     }
 
+
+    public void setNTPServer(Context context,String server,long timeout){
+        android.provider.Settings.Global.putString(context, Settings.Global.NTP_SERVER, server);
+    }
 }

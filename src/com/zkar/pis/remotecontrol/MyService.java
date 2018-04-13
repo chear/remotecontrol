@@ -40,6 +40,7 @@ import android.net.ethernet.IEthernetManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
@@ -89,6 +90,10 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 	private final String RUNNING_STATE = "1103";//返回当前屏幕显示的activity类名和包名
 	private final String RESTART_ADB = "1104";//重启机器的adb服务
 //	private final String SHOW_THEM = "1105";//在屏幕上显示出写入devicepath.xml的监室名称
+
+	/// Chear:
+	private final String NTP_CONF = "1105";		// configure the NTP Server
+
 	private SharedPreferences settings;
 	private WindowManager windowManager;
 //	private String machineCode,serviceurl;
@@ -343,6 +348,13 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 								"version", Context.MODE_PRIVATE);
 						String nowVersion = versionSP.getString("versionNumber", "0.0");
 						sendDatagramPacketMessage(sendAddress, nowVersion);
+					} else if(NTP_CONF.equals(commandMess0)){
+						/* chear: update the  NTP Server */
+						String ntp_server = "";
+						long timeout = 0;
+
+
+
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -667,6 +679,11 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 			handle.obtainMessage(GET_ORDER, getOrder).sendToTarget();
 			getMessageQueueThreadblock = false;
 		}
+	}
+
+
+	private void setNTPServer(String server , long timeout){
+		SetUpIpUtils.getInstance().setNTPServer(server,timeout);
 	}
 }
 

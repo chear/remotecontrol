@@ -44,6 +44,24 @@ android {
 //    dexOptions {
 //        jumboMode true
 //    }
+
+    signingConfigs {
+        release {
+            storeFile file("./output_apk/3288/sys_signed/remotecontrol.jks")
+            storePassword 'zkar123'
+            keyAlias 'remote'
+            keyPassword 'zkar123'
+        }
+
+        debug {
+//            storeFile file("..//signature/demo.jks")
+            storeFile file("output_apk/3288/sys_signed/remotecontrol.jks")
+            storePassword 'zkar123'
+            keyAlias 'remote'
+            keyPassword 'zkar132'
+        }
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -79,13 +97,25 @@ android {
             // 不显示Log
 //            buildConfigField "boolean", "LOG_DEBUG", "false"
             //混淆
-            minifyEnabled true
+//            minifyEnabled true
+            minifyEnabled false
             //Zipalign优化
             zipAlignEnabled true
 //            // 移除无用的resource文件
             shrinkResources false
             //前一部分代表系统默认的android程序的混淆文件，该文件已经包含了基本的混淆声明
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            //sign app
+            signingConfig signingConfigs.release
+        }
+        debug {
+            multiDexEnabled true
+            minifyEnabled false
+            zipAlignEnabled true
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            //sign app
+            signingConfig signingConfigs.debug
         }
     }
     //编译完开始输入apk

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 gradle.startParameter.showStacktrace = org.gradle.api.logging.configuration.ShowStacktrace.ALWAYS
 
 //打包的输出路径
-ext.appReleaseDir = "E:\\GitProject\\com.zkar.pis.remotecontrol\\output_apk\\3188"
+ext.appReleaseDir = "E:\\GitProject\\com.zkar.pis.remotecontrol\\output_apk\\3288"
 
 // 加载版本信息配置文件方法
 def loadProperties() {
@@ -98,4 +98,6 @@ android {
     }
     productFlavors {
     }
+
+
 }

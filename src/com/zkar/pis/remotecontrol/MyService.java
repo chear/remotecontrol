@@ -100,6 +100,7 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 	private final IntentFilter mFilter =  new IntentFilter();
 	private BroadcastReceiver mEthStateReceiver;
 	private ConnectivityManager mService;
+	public static Context CONTEXT = null;
 
 	public final Handler handle = new Handler() {
 		public void handleMessage(Message msg) {
@@ -138,6 +139,7 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		CONTEXT  = this;
 		ShellUtils.execCommand("setprop service.adb.tcp.port 5555", true);
 		ShellUtils.execCommand("stop adbd", true);
 		ShellUtils.execCommand("start adbd", true);
@@ -497,9 +499,10 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 		String[] ipMac = SetUpIpUtils.getInstance().getIpMac();
 		// ip`
 		String localip = ipMac[1];
-		// System.out.println("localip :"+localip);
+		System.out.println("localip :"+localip);
 		// 获取dns
 		String dns = SetUpIpUtils.getInstance().getDns();
+		System.out.println("dnc :"+dns);
 		// mac地址ַ
 		String mac = ipMac[0];
 		// 获取网关
@@ -509,11 +512,11 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 		// 获取当前机器的机器码
 		String machineCode = DeviceUuidFactory.getInstance(MyService.this)
 				.getDeviceUuid();
-		// System.out.println("RemoteControl--machineCode :"+ machineCode);
+		System.out.println("RemoteControl--machineCode :"+ machineCode);
 
 		String ipConfiguration = localip + ";" + dns + ";" + gateway + ";"
 				+ mask + ";" + mac + ";" + machineCode;
-
+		System.out.println("ipConfiguration :"+ ipConfiguration);
 		return ipConfiguration;
 	}
 

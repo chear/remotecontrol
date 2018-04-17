@@ -2,9 +2,11 @@ package com.zkar.monitoringfacilities;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -17,7 +19,9 @@ import android.content.Context;
 //import android.net.ethernet.EthernetManager;
 import android.net.ethernet.EthernetManager;
 import android.os.AsyncTask;
+import android.os.SystemProperties;
 import android.preference.Preference;
+import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.util.Log;
 import com.zkar.pis.remotecontrol.MyService;
@@ -27,7 +31,7 @@ import static com.zkar.outside.util.PackageUtils.TAG;
 public class SetUpIpUtils {
 
     private final String TAG = "RemoteControl_SetupIP";
-    private final String ETHERNET_SERVICE = "ethernet";
+
     private Context myContext;
     private static SetUpIpUtils setUpIpUtils;
 //    private EthernetDevInfo mDevInfo;
@@ -78,9 +82,11 @@ public class SetUpIpUtils {
 
     public static final String ETHERNET_ON = "ethernet_on";
 
+    public static final String ETHERNET_SERVICE = "ethernet";
 
+    private String nullIpInfo = "0.0.0.0";
 //    //TODO htt
-    private final EthernetManager mEthManage = null;
+    private final EthernetManager mEthManager = null;
 
     private SetUpIpUtils() {
     }
@@ -176,20 +182,33 @@ public class SetUpIpUtils {
      */
     public String getDns() {
         String localDns = "";
-        Process localProcess = null;
+//        Process localProcess = null;
         try {
-            localProcess = Runtime.getRuntime().exec("getprop net.dns1");
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(localProcess.getInputStream()));
-            localDns = bufferedReader.readLine();
-            // System.out.println("localDns :"+ localDns);
-            bufferedReader.close();
-        } catch (IOException e) {
+//            localProcess = Runtime.getRuntime().exec("getprop net.dns1");
+//            BufferedReader bufferedReader = new BufferedReader(
+//                    new InputStreamReader(localProcess.getInputStream()));
+//            localDns = bufferedReader.readLine();
+//            // System.out.println("localDns :"+ localDns);
+//            bufferedReader.close();
+
+            if(isUsingStaticIp()) {
+                //chear get from Static dns
+                localDns = Settings.System.getString(MyService.CONTEXT.getContentResolver(), ETHERNET_STATIC_DNS1);
+            } else {
+                //chear get from Dhcp
+                String tempIpInfo = SystemProperties.get("dhcp.eth0.dns1");
+                if ((tempIpInfo != null) && (!tempIpInfo.equals("")) ){
+                    localDns = tempIpInfo;
+                } else {
+                    localDns = nullIpInfo;
+                }
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (localProcess != null) {
-                localProcess.destroy();
-            }
+//            if (localProcess != null) {
+//                localProcess.destroy();
+//            }
         }
         return localDns;
     }
@@ -220,40 +239,80 @@ public class SetUpIpUtils {
         return gateway;
     }
 
+    private boolean isUsingStaticIp() {
+        if(MyService.CONTEXT == null)
+            System.out.println("Myservice CONTENT its null");
+        return Settings.System.getInt(MyService.CONTEXT.getContentResolver(), ETHERNET_USE_STATIC_IP, 0) == 1 ? true : false;
+    }
+
     /**
      * 获取mac地址,ip,子网掩码,,返回数组
      */
     public String[] getIpMac() {
         String[] str = new String[3];
-        Process localProcess = null;
+//        Process localProcess = null;
+        String line = "";
         try {
-            localProcess = Runtime.getRuntime().exec("busybox ifconfig");
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(localProcess.getInputStream()));
-            String line = "";
-            line = bufferedReader.readLine();
-            // mac
-            str[0] = line.substring(line.indexOf("HWaddr") + 7,
-                    line.length() - 2);
-            // System.out.println("str[0] :"+str[0]);
-            // System.out.println("line :"+line);
-            line = bufferedReader.readLine();
-            // ip
-            // System.out.println("line :"+line);
-            str[1] = line.trim()
-                    .substring(10, line.trim().indexOf("Bcast") - 2);
-            // System.out.println("str[1] :"+str[1]);
-            // 子网掩码
-            str[2] = line.substring(line.indexOf("Mask") + 5, line.length());
-            // System.out.println("line :"+line);
-            // System.out.println("str[1] :"+str[1]+'\n'+"str[2] :"+str[2]);
-            bufferedReader.close();
+//            localProcess = Runtime.getRuntime().exec("busybox ifconfig > //data//ifconfig.txt");
+//            BufferedReader bufferedReader = new BufferedReader(
+//                    new InputStreamReader(localProcess.getInputStream()));
+
+            // get Mac address from sysdev
+            BufferedReader bufferedReader = new BufferedReader(new FileReader("sys/class/net/eth0/address"));
+            try {
+                // get mac address
+                line = bufferedReader.readLine();
+                System.out.println("getIpMac line  :" + line);
+                str[0] = line.toUpperCase();
+                System.out.println("chear: mac = " + str[0]);
+
+                // get broadcost ip
+                line = getIp();
+                str[1] = line;
+                System.out.println("chear: broadcast = " + str[1]);
+
+                // get net mask
+                str[2] = getMask();
+                System.out.println("chear: mask = " + str[2]);
+
+            }catch (Exception e) {
+                Log.e(TAG, "open sys/class/net/eth0/address failed : " + e);
+            }finally {
+                try {
+                    if (bufferedReader != null)
+                        bufferedReader.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "close sys/class/net/eth0/address failed : " + e);
+                }
+            }
+
+
+
+//            String line = "";
+//            line = bufferedReader.readLine();
+//            System.out.println("getIpMac line  :" + line);
+//            // mac
+//            str[0] = line.substring(line.indexOf("HWaddr") + 7,
+//                    line.length() - 2);
+//            // System.out.println("str[0] :"+str[0]);
+//            // System.out.println("line :"+line);
+//            line = bufferedReader.readLine();
+//            // ip
+//            // System.out.println("line :"+line);
+//            str[1] = line.trim()
+//                    .substring(10, line.trim().indexOf("Bcast") - 2);
+//            // System.out.println("str[1] :"+str[1]);
+//            // 子网掩码
+//            str[2] = line.substring(line.indexOf("Mask") + 5, line.length());
+//            // System.out.println("line :"+line);
+//            // System.out.println("str[1] :"+str[1]+'\n'+"str[2] :"+str[2]);
+//            bufferedReader.close();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (localProcess != null) {
-                localProcess.destroy();
-            }
+//            if (localProcess != null) {
+//                localProcess.destroy();
+//            }
         }
         return str;
     }
@@ -263,23 +322,37 @@ public class SetUpIpUtils {
      */
     public String getMask() {
         String mask = "";
-        Process localProcess = null;
+//        Process localProcess = null;
         try {
-            localProcess = Runtime.getRuntime().exec("busybox ifconfig");
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(localProcess.getInputStream()));
-            String line = "";
-            line = bufferedReader.readLine();
-            line = bufferedReader.readLine();
-            // 子网掩码
-            mask = line.substring(line.indexOf("Mask") + 5, line.length());
-            bufferedReader.close();
+//            localProcess = Runtime.getRuntime().exec("busybox ifconfig");
+//            BufferedReader bufferedReader = new BufferedReader(
+//                    new InputStreamReader(localProcess.getInputStream()));
+//            String line = "";
+//            line = bufferedReader.readLine();
+//            line = bufferedReader.readLine();
+//            // 子网掩码
+//            mask = line.substring(line.indexOf("Mask") + 5, line.length());
+//            bufferedReader.close();
+
+            //chear: this used in android 4.4.4 rk3288
+            if(isUsingStaticIp()) {
+                //chear get eth Info  From Static IP ,
+                mask = Settings.System.getString(MyService.CONTEXT.getContentResolver(), ETHERNET_STATIC_NETMASK);
+            } else {
+                //chear get eth from Dhcp
+                String tempIpInfo = SystemProperties.get("dhcp.eth0.mask");
+                if ((tempIpInfo != null) && (!tempIpInfo.equals("")) ){
+                    mask = tempIpInfo;
+                } else {
+                    mask = nullIpInfo;
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (localProcess != null) {
-                localProcess.destroy();
-            }
+//            if (localProcess != null) {
+//                localProcess.destroy();
+//            }
         }
         return mask;
     }
@@ -289,22 +362,37 @@ public class SetUpIpUtils {
      */
     public String getIp() {
         String ip = "";
-        Process localProcess = null;
+//        Process localProcess = null;
         try {
-            localProcess = Runtime.getRuntime().exec("busybox ifconfig");
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(localProcess.getInputStream()));
-            String line = "";
-            line = bufferedReader.readLine();
-            line = bufferedReader.readLine();
-            ip = line.trim().substring(10, line.trim().indexOf("Bcast") - 2);
-            bufferedReader.close();
+//            localProcess = Runtime.getRuntime().exec("busybox ifconfig");
+//            BufferedReader bufferedReader = new BufferedReader(
+//                    new InputStreamReader(localProcess.getInputStream()));
+//            String line = "";
+//            line = bufferedReader.readLine();
+//            line = bufferedReader.readLine();
+//            ip = line.trim().substring(10, line.trim().indexOf("Bcast") - 2);
+//            bufferedReader.close();
+
+
+            //chear: this used in android 4.4.4 rk3288
+            if(isUsingStaticIp()) {
+                //chear get eth Info  From Static IP ,
+                ip = Settings.System.getString(MyService.CONTEXT.getContentResolver(), ETHERNET_STATIC_IP);
+            } else {
+                //chear get eth from Dhcp
+                String tempIpInfo = SystemProperties.get("dhcp.eth0.ipaddress");
+                if ((tempIpInfo != null) && (!tempIpInfo.equals("")) ){
+                    ip = tempIpInfo;
+                } else {
+                    ip = nullIpInfo;
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (localProcess != null) {
-                localProcess.destroy();
-            }
+//            if (localProcess != null) {
+//                localProcess.destroy();
+//            }
         }
         return ip;
     }

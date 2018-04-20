@@ -37,3 +37,7 @@ local.properties
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+
+/output_apk/*/com.zkar.pis.remotecontrol.apk
+/output_apk/*/com.zkar.pis.remotecontrol_signed.apk

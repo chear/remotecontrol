@@ -94,7 +94,7 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 	private boolean detectionIpblock = false;//监测子网掩码变不变
 	private boolean getMessageQueueThreadblock = false;//等待接收指令的线程
 
-	private final String TAG = "ZKAR";
+	private final String TAG = "ZKAR.Myservice";
 
 	//TODO htt
 	private final IntentFilter mFilter =  new IntentFilter();
@@ -169,7 +169,7 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 			// 确定接受方的IP和端口号，IP地址为本地机器地址
 			// InetAddress ip = InetAddress.getLocalHost();
 			// System.out.println("ip :"+ip);
-			Log.i(TAG, "remotecontrol服务启动..");
+			Log.i(TAG, "remotecontrol service startup..");
 			int port = 9075;
 //			try {
 //				InetAddress inetRemoteAddr = InetAddress.getByName(MulticastAddr);
@@ -206,15 +206,15 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 
 					// 解析发送方传递的消息，并打印
 					String getMes = new String(buf, 0, getPacket.getLength());
-					System.out.println("remotecontrol接收的消息：" + getMes);
+					Log.i("TAG","remotecontrol receive msg:" + getMes);
 					String[] commandMess = getMes.toLowerCase().split(";");
 					String commandMess0 = commandMess[0];
 
 					// 通过数据报得到发送方的IP和端口号
 					InetAddress sendIP = getPacket.getAddress();
 					int sendPort = getPacket.getPort();
-					System.out.println("对方的IP地址是：" + sendIP.getHostAddress());
-					System.out.println("对方的端口号是：" + sendPort);
+					Log.i("TAG","source ip address:" + sendIP.getHostAddress());
+					Log.i("TAG","source ip port number:" + sendPort);
 					// 通过数据报得到发送方的套接字地址
 					SocketAddress sendAddress = getPacket.getSocketAddress();
 
@@ -271,7 +271,7 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 								MyService.this);
 						String hardwareInformation = monitoring
 								.getInfo(getServerIp());
-						System.out.println("硬件信息 :" + hardwareInformation);
+						Log.i("TAG","hardware info :" + hardwareInformation);
 						sendDatagramPacketMessage(sendAddress,
 								hardwareInformation);
 					} else if (MACHINECODE.equals(commandMess0)) {
@@ -337,7 +337,7 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 						setDynamicIp();
 					} else if(CLEAR_PICTURE.equals(commandMess0)) {
 						FileCache.getInstance(getApplicationContext(),"ImageLoader").clear();
-						System.out.println("清除缓存..");
+						Log.i("TAG","clean cook cache..");
 					} else if(CLEAR_PLUGINS.equals(commandMess0)){
 						FileCache.getInstance(getApplicationContext(),"plugins").clear();
 					} else if(QUERY_VERSION_NUMBER.equals(commandMess0)){//查询当前程序的版本号
@@ -425,7 +425,7 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 	private void sendDatagramPacketMessage(SocketAddress Address,
 			String backmessage) {
 		// 确定要反馈发送方的消息内容，并转换为字节数组
-		System.out.println("返回消息backmessage :" + backmessage);
+		Log.i("TAG","callback  backmessage :" + backmessage);
 		byte[] backBuf = backmessage.getBytes();
 		// 创建发送类型的数据报
 		try {
@@ -499,10 +499,10 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 		String[] ipMac = SetUpIpUtils.getInstance().getIpMac();
 		// ip`
 		String localip = ipMac[1];
-		System.out.println("localip :"+localip);
+		Log.i("TAG","localip :"+localip);
 		// 获取dns
 		String dns = SetUpIpUtils.getInstance().getDns();
-		System.out.println("dnc :"+dns);
+		Log.i("TAG","dnc :"+dns);
 		// mac地址ַ
 		String mac = ipMac[0];
 		// 获取网关
@@ -512,11 +512,11 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 		// 获取当前机器的机器码
 		String machineCode = DeviceUuidFactory.getInstance(MyService.this)
 				.getDeviceUuid();
-		System.out.println("RemoteControl--machineCode :"+ machineCode);
+		Log.i("TAG","RemoteControl--machineCode :"+ machineCode);
 
 		String ipConfiguration = localip + ";" + dns + ";" + gateway + ";"
 				+ mask + ";" + mac + ";" + machineCode;
-		System.out.println("ipConfiguration :"+ ipConfiguration);
+		Log.i("TAG","ipConfiguration :"+ ipConfiguration);
 		return ipConfiguration;
 	}
 

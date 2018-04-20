@@ -30,7 +30,7 @@ import static com.zkar.outside.util.PackageUtils.TAG;
 
 public class SetUpIpUtils {
 
-    private final String TAG = "RemoteControl_SetupIP";
+    private final String TAG = "ZKAR.SetUpIpUtils";
 
     private Context myContext;
     private static SetUpIpUtils setUpIpUtils;
@@ -171,7 +171,7 @@ public class SetUpIpUtils {
                 }
             }
         } catch (SocketException e) {
-            Log.i("SetUpIpUtils", "获取本机ip出错!");
+            Log.i(TAG, "获取本机ip出错!");
             e.printStackTrace();
         }
         return "";
@@ -224,10 +224,10 @@ public class SetUpIpUtils {
             BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(localProcess.getInputStream()));
             String getewayReaderLine = bufferedReader.readLine();
-            System.out.println("getewayReaderLine :" + getewayReaderLine);
+            Log.i("TAG","getewayReaderLine :" + getewayReaderLine);
             gateway = getewayReaderLine.substring(12,
                     getewayReaderLine.indexOf("dev") - 1);
-            System.out.println("gateway :" + gateway);
+            Log.i("TAG","gateway :" + gateway);
             bufferedReader.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -241,7 +241,7 @@ public class SetUpIpUtils {
 
     private boolean isUsingStaticIp() {
         if(MyService.CONTEXT == null)
-            System.out.println("Myservice CONTENT its null");
+            Log.i("TAG","Myservice CONTENT its null");
         return Settings.System.getInt(MyService.CONTEXT.getContentResolver(), ETHERNET_USE_STATIC_IP, 0) == 1 ? true : false;
     }
 
@@ -262,18 +262,18 @@ public class SetUpIpUtils {
             try {
                 // get mac address
                 line = bufferedReader.readLine();
-                System.out.println("getIpMac line  :" + line);
+                Log.i("TAG","getIpMac line  :" + line);
                 str[0] = line.toUpperCase();
-                System.out.println("chear: mac = " + str[0]);
+                Log.i("TAG","chear: mac = " + str[0]);
 
                 // get broadcost ip
                 line = getIp();
                 str[1] = line;
-                System.out.println("chear: broadcast = " + str[1]);
+                Log.i("TAG","chear: broadcast = " + str[1]);
 
                 // get net mask
                 str[2] = getMask();
-                System.out.println("chear: mask = " + str[2]);
+                Log.i("TAG","chear: mask = " + str[2]);
 
             }catch (Exception e) {
                 Log.e(TAG, "open sys/class/net/eth0/address failed : " + e);
@@ -298,7 +298,7 @@ public class SetUpIpUtils {
 //            // System.out.println("line :"+line);
 //            line = bufferedReader.readLine();
 //            // ip
-//            // System.out.println("line :"+line);
+//            // Log.i("TAG","line :"+line);
 //            str[1] = line.trim()
 //                    .substring(10, line.trim().indexOf("Bcast") - 2);
 //            // System.out.println("str[1] :"+str[1]);
@@ -360,6 +360,7 @@ public class SetUpIpUtils {
     /**
      * 修改ip
      */
+
     public String getIp() {
         String ip = "";
 //        Process localProcess = null;
@@ -378,9 +379,11 @@ public class SetUpIpUtils {
             if(isUsingStaticIp()) {
                 //chear get eth Info  From Static IP ,
                 ip = Settings.System.getString(MyService.CONTEXT.getContentResolver(), ETHERNET_STATIC_IP);
+                Log.i(TAG,"static ip = "+ip);
             } else {
                 //chear get eth from Dhcp
                 String tempIpInfo = SystemProperties.get("dhcp.eth0.ipaddress");
+                Log.i(TAG,"dhcp ip = "+ tempIpInfo);
                 if ((tempIpInfo != null) && (!tempIpInfo.equals("")) ){
                     ip = tempIpInfo;
                 } else {
@@ -472,7 +475,7 @@ public class SetUpIpUtils {
                     new InputStreamReader(localProcess.getInputStream()));
             String line = "";
             while ((line = bufferedReader.readLine()) != null) {
-                System.out.println("isrunning :"
+                Log.i("TAG","isrunning :"
                         + line.substring(line.indexOf("S") + 2, line.length()));
                 if (line.substring(line.indexOf("S") + 2, line.length()).trim()
                         .equals(packageName)) {

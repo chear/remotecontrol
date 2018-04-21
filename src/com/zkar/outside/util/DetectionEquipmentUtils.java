@@ -20,6 +20,7 @@ import android.util.Log;
 
 public class DetectionEquipmentUtils {
 	private static DetectionEquipmentUtils detectionEquipmentUtils;
+	private final String TAG = "ZKAR.Detection";
 
 	public static DetectionEquipmentUtils getInstance() {
 		if (detectionEquipmentUtils == null) {
@@ -126,7 +127,8 @@ public class DetectionEquipmentUtils {
 				}
 			}
 			bufferedReader.close();
-			System.out.println("cpu使用率:" + cpu);
+//			System.out.println("cpu useage :" + cpu);
+			Log.i(TAG,"cpu useage :" + cpu);
 			if (userCpu != null) {
 				result = Integer.parseInt(userCpu)
 						+ Integer.parseInt(systemCpu) + "";
@@ -328,7 +330,8 @@ public class DetectionEquipmentUtils {
 		am.getMemoryInfo(mi);
 		// mi.availMem; 当前系统的可用内存
 		// return Formatter.formatFileSize(context, mi.availMem);// 将获取的内存大小规格化
-		System.out.println("可用内存---->>>" + mi.availMem / (1024 * 1024));
+//		System.out.println("可用内存---->>>" + mi.availMem / (1024 * 1024));
+		Log.i(TAG, "free memory ---->>>" + mi.availMem / (1024 * 1024));
 		return mi.availMem / (1024 * 1024);
 	}
 

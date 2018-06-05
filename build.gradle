@@ -45,16 +45,16 @@ android {
 
     signingConfigs {
         release {
-            storeFile file("./output_apk/a20/sys_signed/remotecontrol.jks")
-            storePassword 'a2012345'
-            keyAlias 'a20_sign_file'
+            storeFile file("./output_apk/a20/sys_signed/a20_android4p2.jks")
+            storePassword 'zkar123'
+            keyAlias 'a20'
             keyPassword 'zkar123'
         }
 
         debug {
-            storeFile file("output_apk/a20/sys_signed/remotecontrol.jks")
-            storePassword 'a2012345'
-            keyAlias 'a20_sign_file'
+            storeFile file("./output_apk/a20/sys_signed/a20_android4p2.jks")
+            storePassword 'zkar123'
+            keyAlias 'a20'
             keyPassword 'zkar123'
         }
     }
@@ -139,5 +139,7 @@ android {
             output.outputFile =
                     new File(appReleaseDir + "/com.zkar.pis.remotecontrol.apk")
         }
+    }
+    productFlavors {
     }
 }

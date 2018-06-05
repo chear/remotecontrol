@@ -468,6 +468,6 @@ public class SetUpIpUtils {
 
 
     public void setNTPServer(Context context,String server,long timeout){
-        android.provider.Settings.Global.putString(context, Settings.Global.NTP_SERVER, server);
+//        android.provider.Settings.Global.putString(context, Settings.Global.NTP_SERVER, server);
     }
 }

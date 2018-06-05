@@ -683,7 +683,7 @@ public class MyService extends Service implements SurfaceHolder.Callback  {
 
 
 	private void setNTPServer(String server , long timeout){
-		SetUpIpUtils.getInstance().setNTPServer(server,timeout);
+//		SetUpIpUtils.getInstance().setNTPServer(server,timeout);
 	}
 }
 

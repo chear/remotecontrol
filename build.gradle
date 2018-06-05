@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
-//打包的输出路径
-ext.appReleaseDir = "E:\\androidapk\\remotecontrol\\output_apk\\"
+//打包的输出路径 for default
+ext.appReleaseDir = ""
 
 // 加载版本信息配置文件方法
 def loadProperties() {
@@ -26,7 +26,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.1'
+        classpath 'com.android.tools.build:gradle:2.2.2'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -34,8 +34,30 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 17
     buildToolsVersion "25.0.2"
+    defaultConfig {
+        multiDexEnabled true
+    }
+//    dexOptions {
+//        jumboMode true
+//    }
+
+    signingConfigs {
+        release {
+            storeFile file("./output_apk/a20/sys_signed/remotecontrol.jks")
+            storePassword 'a2012345'
+            keyAlias 'a20_sign_file'
+            keyPassword 'zkar123'
+        }
+
+        debug {
+            storeFile file("output_apk/a20/sys_signed/remotecontrol.jks")
+            storePassword 'a2012345'
+            keyAlias 'a20_sign_file'
+            keyPassword 'zkar123'
+        }
+    }
 
     sourceSets {
         main {
@@ -72,14 +94,40 @@ android {
         release {
             // 不显示Log
 //            buildConfigField "boolean", "LOG_DEBUG", "false"
+            multiDexEnabled true
+            // 不显示Log
+            //            buildConfigField "boolean", "LOG_DEBUG", "false"
             //混淆
-            minifyEnabled true
+            //            minifyEnabled true
+            minifyEnabled false
+
+
             //Zipalign优化
             zipAlignEnabled true
             // 移除无用的resource文件
             shrinkResources false
             //前一部分代表系统默认的android程序的混淆文件，该文件已经包含了基本的混淆声明
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            // 不显示Log
+//            buildConfigField "boolean", "LOG_DEBUG", "false"
+            multiDexEnabled true
+            // 不显示Log
+            //            buildConfigField "boolean", "LOG_DEBUG", "false"
+            //混淆
+            //            minifyEnabled true
+            minifyEnabled false
+
+
+            //Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources false
+            //前一部分代表系统默认的android程序的混淆文件，该文件已经包含了基本的混淆声明
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            signingConfig signingConfigs.release
         }
     }
 
